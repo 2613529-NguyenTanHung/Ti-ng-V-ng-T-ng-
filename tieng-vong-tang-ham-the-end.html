@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiếng Vọng Tầng Hầm (K-09) - The End Edition</title>
+    <style>
+        :root {
+            --bg-dark: #050507;
+            --text-main: #c8d0d8;
+            --theme-color: #d92b2b;
+            --accent-green: #2ecc71;
+            --hud-bg: rgba(12, 14, 18, 0.85);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(20, 22, 28, 0.95) 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 20;
+        }
+
+        .hidden { display: none !important; }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
+        }
+
+        .subtitle {
+            color: var(--theme-color);
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .lore {
+            max-width: 580px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #9aa5b1;
+            font-size: 0.95rem;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.8rem;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .key {
+            display: inline-block;
+            background: #222;
+            border: 1px solid #666;
+            border-bottom-width: 3px;
+            padding: 1px 6px;
+            color: #fff;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 11px 24px;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        button:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
+        }
+
+        #game-hud {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .hud-top-left {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--hud-bg);
+            padding: 12px 16px;
+            border-left: 4px solid var(--theme-color);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        .noise-bar {
+            width: 180px;
+            height: 8px;
+            background: #111;
+            border: 1px solid #444;
+            margin-top: 4px;
+        }
+
+        #noise-fill {
+            height: 100%;
+            width: 30%;
+            background: var(--accent-green);
+            transition: width 0.1s, background-color 0.2s;
+        }
+
+        .hud-bottom-left {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: var(--hud-bg);
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            border: 1px solid #333;
+        }
+
+        .battery-bar {
+            width: 150px;
+            height: 8px;
+            background: #222;
+            margin-top: 5px;
+        }
+
+        #battery-fill {
+            height: 100%;
+            width: 100%;
+            background: #f1c40f;
+        }
+
+        #btn-main-menu {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--hud-bg);
+            color: #c8d0d8;
+            border: 2px solid #525d70;
+            padding: 8px 14px;
+            font-size: 13px;
+            pointer-events: auto;
+        }
+
+        #btn-main-menu:hover {
+            background: var(--theme-color);
+            border-color: #fff;
+            color: #fff;
+        }
+
+        #stage-banner {
+            position: absolute;
+            top: 22%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 20px var(--theme-color);
+            background: rgba(0, 0, 0, 0.75);
+            padding: 14px 30px;
+            border-top: 2px solid var(--theme-color);
+            border-bottom: 2px solid var(--theme-color);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 15;
+            text-align: center;
+        }
+
+        #jumpscare-overlay {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 30;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="screen">
+        <h1>TIẾNG VỌNG TẦNG HẦM</h1>
+        <div class="subtitle">TRẠM K-09 // 3 CẤP ĐỘ SINH TỒN</div>
+        <p class="lore">
+            Vượt qua 3 chiều không gian chết chóc: <b>Tầng 1 (Hầm Ngầm)</b>, <b>Tầng 2 (Địa Ngục)</b> và <b>Tầng 3 (THE END)</b>. Tìm rương lấy thẻ từ, nhặt súng vô hạn đạn và kích hoạt cổng thoát hiểm!
+        </p>
+
+        <div class="controls-grid">
+            <div><span class="key">W A S D</span> Di chuyển (Steve)</div>
+            <div><span class="key">Ctrl</span> Đi rón rén (Giảm ồn)</div>
+            <div><span class="key">F</span> Bật / Tắt đèn pin</div>
+            <div><span class="key">R</span> Quay sạc pin (Ồn!)</div>
+            <div><span class="key">Chuột Trái</span> Bắn súng choáng (2s)</div>
+            <div><span class="key">E</span> Mở rương / Vào cổng</div>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="startGame(1)">BẮT ĐẦU (TẦNG 1)</button>
+            <button onclick="startGame(2)" style="border-color: #e74c3c; color: #ff7675;">THỬ TẦNG 2 (ĐỊA NGỤC)</button>
+            <button onclick="startGame(3)" style="border-color: #a55eea; color: #d6a2e8;">THỬ TẦNG 3 (THE END)</button>
+        </div>
+    </div>
+
+    <div id="lose-screen" class="screen hidden">
+        <h1 style="color: #e74c3c;">STEVE ĐÃ BỊ HẠ GỤC</h1>
+        <p class="lore" id="lose-reason">Thực thể bóng tối đã bắt kịp bạn trong chiều không gian sâu thẳm...</p>
+        <div class="btn-group">
+            <button onclick="restartCurrentFloor()">THỬ LẠI TẦNG NÀY</button>
+            <button onclick="returnToMainMenu()">GIAO DIỆN CHÍNH</button>
+        </div>
+    </div>
+
+    <div id="win-screen" class="screen hidden">
+        <h1 id="win-title" style="color: var(--accent-green);">THOÁT KHỎI TẦNG HẦM</h1>
+        <p class="lore" id="win-desc">Cánh cổng không gian mở ra, dẫn bạn xuống chiều sâu tiếp theo...</p>
+        <div class="btn-group">
+            <button id="btn-next-stage" onclick="nextFloor()">XUỐNG TẦNG TIẾP THEO</button>
+            <button onclick="returnToMainMenu()">GIAO DIỆN CHÍNH</button>
+        </div>
+    </div>
+
+    <div id="jumpscare-overlay" class="hidden">
+        <canvas id="jumpscareCanvas" width="400" height="400"></canvas>
+    </div>
+
+    <div id="game-hud" class="hidden">
+        <div id="stage-banner">TẦNG 1: HẦM NGẦM K-09</div>
+
+        <div class="hud-top-left" id="hud-box">
+            <div>CẤP ĐỘ: <span id="stage-name" style="color: #fff; font-weight: bold;">TẦNG 1 - K-09</span></div>
+            <div>MỤC TIÊU: <span id="mission-txt" style="color: #f1c40f;">Tìm Rương lấy Thẻ Từ</span></div>
+            <div>VŨ KHÍ: <span id="gun-txt" style="color: #888;">Chưa có (Mở ở Tầng 2+)</span></div>
+            <div>ĐỘ ỒN: <span id="db-txt">30</span> dB | AI: <span id="ai-state" style="color: #2ecc71;">TUẦN TRA</span></div>
+            <div class="noise-bar"><div id="noise-fill"></div></div>
+        </div>
+
+        <button id="btn-main-menu" onclick="returnToMainMenu()">[ESC] GIAO DIỆN CHÍNH</button>
+
+        <div class="hud-bottom-left">
+            <div>PIN ĐÈN [<span class="key">F</span>] | SẠC [<span class="key">R</span>]</div>
+            <div class="battery-bar"><div id="battery-fill"></div></div>
+            <div id="interact-hint" style="margin-top: 6px; color: #2ecc71; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const TILE = 48;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(freqStart, freqEnd, type, duration, vol) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freqStart, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freqEnd, audioCtx.currentTime + duration);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playFootstepSound(sneak) {
+            playTone(sneak ? 75 : 110 + Math.random() * 15, 30, 'triangle', 0.06, sneak ? 0.04 : 0.14);
+        }
+        function playCrankSound() { playTone(130, 320, 'sawtooth', 0.08, 0.12); }
+        function playStunShootSound() {
+            playTone(880, 140, 'sawtooth', 0.22, 0.2);
+            playTone(1200, 300, 'square', 0.18, 0.12);
+        }
+        function playStageTransitionSound(stage) {
+            if (stage === 2) playTone(95, 42, 'sawtooth', 1.1, 0.25);
+            if (stage === 3) {
+                playTone(220, 55, 'sine', 1.4, 0.25);
+                playTone(330, 82, 'triangle', 1.4, 0.15);
+            }
+        }
+        function playJumpscareSound() {
+            playTone(650, 90, 'sawtooth', 0.75, 0.35);
+            playTone(180, 40, 'square', 0.75, 0.35);
+        }
+
+        function makeSprite(drawFn) {
+            const c = document.createElement('canvas');
+            c.width = 16; c.height = 16;
+            drawFn(c.getContext('2d'));
+            return c;
+        }
+
+        const wallT1 = makeSprite(x => {
+            x.fillStyle = '#222730'; x.fillRect(0, 0, 16, 16);
+            x.fillStyle = '#3d4554';
+            x.fillRect(1, 1, 6, 4); x.fillRect(8, 1, 7, 4);
+            x.fillRect(0, 6, 3, 4); x.fillRect(4, 6, 7, 4); x.fillRect(12, 6, 4, 4);
+            x.fillRect(1, 11, 6, 4); x.fillRect(8, 11, 7, 4);
+            x.fillStyle = '#294737'; x.fillRect(2, 12, 3, 3);
+        });
+        const floorT1 = makeSprite(x => {
+            x.fillStyle = '#13161c'; x.fillRect(0, 0, 16, 16);
+            x.fillStyle = '#1b1f28'; x.fillRect(0, 0, 16, 1); x.fillRect(0, 0, 1, 16);
+        });
+
+        const wallT2 = makeSprite(x => {
+            x.fillStyle = '#3b0d0d'; x.fillRect(0, 0, 16, 16);
+            x.fillStyle = '#631717';
+            x.fillRect(1, 1, 6, 5); x.fillRect(8, 2, 7, 4);
+            x.fillRect(2, 8, 5, 6); x.fillRect(9, 8, 6, 5);
+            x.fillStyle = '#ff5722'; x.fillRect(7, 6, 2, 2);
+        });
+        const floorT2 = makeSprite(x => {
+            x.fillStyle = '#1c0909'; x.fillRect(0, 0, 16, 16);
+            x.fillStyle = '#2b0e0e'; x.fillRect(0, 0, 16, 1); x.fillRect(0, 0, 1, 16);
+            x.fillStyle = '#d35400'; x.fillRect(10, 10, 2, 1);
+        });
+
+        const wallT3 = makeSprite(x => {
+            x.fillStyle = '#b5b882'; x.fillRect(0, 0, 16, 16);
+            x.fillStyle = '#dfe2a8';
+            x.fillRect(1, 1, 6, 4); x.fillRect(9, 2, 6, 5);
+            x.fillRect(2, 8, 5, 5); x.fillRect(8, 9, 7, 5);
+            x.fillStyle = '#8b8e5a';
+            x.fillRect(3, 3, 2, 2); x.fillRect(11, 5, 2, 2);
+            x.fillRect(5, 11, 2, 2); x.fillRect(12, 12, 2, 1);
+        });
+        const floorT3 = makeSprite(x => {
+            x.fillStyle = '#10091c'; x.fillRect(0, 0, 16, 16);
+            x.fillStyle = '#1d1133'; x.fillRect(0, 0, 16, 1); x.fillRect(0, 0, 1, 16);
+            x.fillStyle = '#4a237a'; x.fillRect(4, 5, 2, 2);
+            x.fillStyle = '#7d3ac1'; x.fillRect(11, 11, 1, 2);
+        });
+
+        const chestSprite = makeSprite(x => {
+            x.fillStyle = '#5c3a21'; x.fillRect(2, 5, 12, 8);
+            x.fillStyle = '#7f8c8d'; x.fillRect(2, 5, 2, 8); x.fillRect(12, 5, 2, 8);
+            x.fillStyle = '#f1c40f'; x.fillRect(7, 7, 2, 3);
+        });
+        const portalSprite = makeSprite(x => {
+            x.fillStyle = '#2c3e50'; x.fillRect(1, 1, 14, 14);
+            x.fillStyle = '#111'; x.fillRect(3, 3, 10, 11);
+            x.fillStyle = '#2ecc71'; x.fillRect(4, 4, 8, 9);
+            x.fillStyle = '#a3ffac'; x.fillRect(6, 6, 4, 5);
+        });
+        const gunSprite = makeSprite(x => {
+            x.fillStyle = '#00cec9'; x.fillRect(3, 6, 10, 3);
+            x.fillStyle = '#636e72'; x.fillRect(3, 9, 3, 4);
+            x.fillStyle = '#ffeaa7'; x.fillRect(12, 6, 2, 2);
+        });
+        const batSprite = makeSprite(x => {
+            x.fillStyle = '#95a5a6'; x.fillRect(6, 3, 4, 2);
+            x.fillStyle = '#2ecc71'; x.fillRect(5, 5, 6, 8);
+        });
+
+        function drawSteve(ctx, x, y, walkPhase, facingLeft, hasGun) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (facingLeft) ctx.scale(-1, 1);
+
+            const p = 2.4;
+            const bob = Math.abs(Math.sin(walkPhase)) * 3;
+            const legSwing = Math.sin(walkPhase) * 4;
+            const armSwing = -Math.sin(walkPhase) * 4;
+
+            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            ctx.fillRect(-6 * p, 6 * p, 12 * p, 2.5 * p);
+            ctx.translate(0, -bob);
+
+            ctx.fillStyle = '#2b2478'; ctx.fillRect(-2 * p + legSwing, 2 * p, 4 * p, 5 * p);
+            ctx.fillStyle = '#3b32a8'; ctx.fillRect(-2 * p - legSwing, 2 * p, 4 * p, 5 * p);
+            ctx.fillStyle = '#00a8a8'; ctx.fillRect(-3 * p, -3 * p, 6 * p, 5 * p);
+
+            ctx.fillStyle = '#b58365';
+            if (hasGun) {
+                ctx.fillRect(1 * p, -2 * p, 4 * p, 2.5 * p);
+                ctx.fillStyle = '#00cec9'; ctx.fillRect(4 * p, -2.5 * p, 5 * p, 2 * p);
+                ctx.fillStyle = '#ffeaa7'; ctx.fillRect(8 * p, -2.5 * p, 1.5 * p, 1.5 * p);
+            } else {
+                ctx.fillRect(-1.5 * p + armSwing, -2 * p, 3 * p, 4 * p);
+            }
+
+            ctx.fillStyle = '#c49172'; ctx.fillRect(-4 * p, -10 * p, 8 * p, 7 * p);
+            ctx.fillStyle = '#472c1b'; ctx.fillRect(-4 * p, -10 * p, 8 * p, 2.2 * p);
+            ctx.fillStyle = '#fff'; ctx.fillRect(0 * p, -6.5 * p, 1.5 * p, 1.2 * p);
+            ctx.fillStyle = '#49369c'; ctx.fillRect(1.5 * p, -6.5 * p, 1.5 * p, 1.2 * p);
+            ctx.restore();
+        }
+
+        function drawMonster(ctx, x, y, stage, stunned, walkPhase) {
+            ctx.save();
+            ctx.translate(x, y);
+            const p = 2.6;
+            const bounce = stunned ? 0 : Math.abs(Math.sin(walkPhase)) * 3;
+            ctx.translate(0, -bounce);
+
+            const bodyColor = stage === 3 ? '#2d0b4e' : '#b71540';
+            const eyeColor = stage === 3 ? '#e056fd' : '#f1c40f';
+
+            ctx.fillStyle = '#1e272e';
+            ctx.fillRect(-5 * p, -11 * p, 2 * p, 3 * p);
+            ctx.fillRect(3 * p, -11 * p, 2 * p, 3 * p);
+
+            ctx.fillStyle = bodyColor;
+            ctx.fillRect(-5 * p, -8 * p, 10 * p, 13 * p);
+
+            ctx.fillStyle = eyeColor;
+            ctx.fillRect(-3 * p, -5 * p, 2 * p, 2 * p);
+            ctx.fillRect(1 * p, -5 * p, 2 * p, 2 * p);
+
+            ctx.fillStyle = stage === 3 ? '#be2edd' : '#eb2f06';
+            ctx.fillRect(6 * p, -9 * p, 1.5 * p, 15 * p);
+            ctx.fillRect(4.5 * p, -11 * p, 4.5 * p, 1.5 * p);
+
+            if (stunned) {
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-7 * p, -12 * p, 14 * p, 18 * p);
+            }
+            ctx.restore();
+        }
+
+        let currentStage = 1;
+        let isPlaying = false;
+        let map = [];
+        let rows = 17, cols = 25;
+        let player = {};
+        let monster = {};
+        let bullets = [];
+        let footParticles = [];
+        let ambientParticles = [];
+        let noise = 30;
+        let keys = {};
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+        function generateMaze(rCount, cCount) {
+            const grid = Array.from({ length: rCount }, () => Array(cCount).fill(1));
+            function carve(r, c) {
+                grid[r][c] = 0;
+                const dirs = [[-2, 0], [2, 0], [0, -2], [0, 2]].sort(() => Math.random() - 0.5);
+                for (const [dr, dc] of dirs) {
+                    const nr = r + dr, nc = c + dc;
+                    if (nr > 0 && nr < rCount - 1 && nc > 0 && nc < cCount - 1 && grid[nr][nc] === 1) {
+                        grid[r + dr / 2][c + dc / 2] = 0;
+                        carve(nr, nc);
+                    }
+                }
+            }
+            carve(1, 1);
+            for (let i = 0; i < Math.floor(rCount * 1.2); i++) {
+                const rr = 2 + Math.floor(Math.random() * (rCount - 4));
+                const cc = 2 + Math.floor(Math.random() * (cCount - 4));
+                if (grid[rr][cc] === 1) grid[rr][cc] = 0;
+            }
+            return grid;
+        }
+
+        function initStage(stage) {
+            currentStage = stage;
+            if (stage === 1) { rows = 17; cols = 25; }
+            else if (stage === 2) { rows = 21; cols = 29; }
+            else { rows = 23; cols = 31; }
+
+            map = generateMaze(rows, cols);
+
+            // Đảm bảo vị trí đặt vật phẩm luôn là ô trống
+            map[1][cols - 2] = 2;
+            map[1][cols - 3] = 0;
+            map[rows - 2][cols - 2] = 3;
+            map[rows - 2][cols - 3] = 0;
+
+            if (stage >= 2) {
+                map[rows - 2][1] = 4;
+                map[rows - 2][2] = 0;
+            }
+
+            const midR = Math.floor(rows / 2);
+            const midC = Math.floor(cols / 2);
+            map[midR][midC] = 5;
+
+            const keepGun = (stage >= 2 && player && player.hasGun) ? true : false;
+
+            player = {
+                x: 1.5 * TILE, y: 1.5 * TILE,
+                walkPhase: 0, stepTimer: 0, facingLeft: false,
+                hasKey: false,
+                hasGun: keepGun,
+                shootCooldown: 0,
+                battery: 100, flashlight: true
+            };
+
+            monster = {
+                x: (cols - 2.5) * TILE,
+                y: (rows - 3.5) * TILE,
+                speed: stage === 1 ? 1.8 : (stage === 2 ? 2.2 : 2.55),
+                stunTimer: 0,
+                walkPhase: 0,
+                path: [],
+                pathTimer: 0
+            };
+
+            bullets = [];
+            footParticles = [];
+            noise = 30;
+
+            ambientParticles = Array.from({ length: 45 }, () => ({
+                x: Math.random() * cols * TILE,
+                y: Math.random() * rows * TILE,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: stage === 2 ? -0.7 : (Math.random() - 0.5) * 0.5,
+                size: Math.random() > 0.5 ? 3 : 2
+            }));
+
+            const root = document.documentElement;
+            const banner = document.getElementById('stage-banner');
+            const stageName = document.getElementById('stage-name');
+
+            if (stage === 1) {
+                root.style.setProperty('--theme-color', '#3498db');
+                banner.innerText = 'TẦNG 1: HẦM NGẦM K-09';
+                stageName.innerText = 'TẦNG 1 - K-09';
+            } else if (stage === 2) {
+                root.style.setProperty('--theme-color', '#e74c3c');
+                banner.innerText = 'TẦNG 2: CẤP ĐỘ ĐỊA NGỤC';
+                stageName.innerText = 'TẦNG 2 - ĐỊA NGỤC';
+                playStageTransitionSound(2);
+            } else {
+                root.style.setProperty('--theme-color', '#a55eea');
+                banner.innerText = 'TẦNG 3: THE END (HƯ KHÔNG)';
+                stageName.innerText = 'TẦNG 3 - THE END';
+                playStageTransitionSound(3);
+            }
+
+            banner.style.opacity = '1';
+            setTimeout(() => { banner.style.opacity = '0'; }, 2600);
+            updateHUD();
+        }
+
+        function updateHUD() {
+            document.getElementById('mission-txt').innerText = player.hasKey ? 'Mở Cổng Thoát Hiểm!' : 'Tìm Rương lấy Thẻ Từ';
+            document.getElementById('mission-txt').style.color = player.hasKey ? '#2ecc71' : '#f1c40f';
+
+            const gunTxt = document.getElementById('gun-txt');
+            if (player.hasGun) {
+                gunTxt.innerText = 'SÚNG TÊ LIỆT (ĐẠN: ∞)';
+                gunTxt.style.color = '#00cec9';
+            } else if (currentStage >= 2) {
+                gunTxt.innerText = 'Tìm Súng ở góc dưới trái!';
+                gunTxt.style.color = '#f39c12';
+            } else {
+                gunTxt.innerText = 'Chưa có (Mở ở Tầng 2+)';
+                gunTxt.style.color = '#888';
+            }
+        }
+
+        function startGame(stage) {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('lose-screen').classList.add('hidden');
+            document.getElementById('win-screen').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('hidden');
+            player.hasGun = false;
+            initStage(stage);
+            if (!isPlaying) {
+                isPlaying = true;
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function restartCurrentFloor() {
+            document.getElementById('lose-screen').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('hidden');
+            initStage(currentStage);
+            isPlaying = true;
+        }
+
+        function nextFloor() {
+            document.getElementById('win-screen').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('hidden');
+            initStage(currentStage + 1);
+            isPlaying = true;
+        }
+
+        function returnToMainMenu() {
+            isPlaying = false;
+            document.getElementById('game-hud').classList.add('hidden');
+            document.getElementById('lose-screen').classList.add('hidden');
+            document.getElementById('win-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        window.addEventListener('keydown', e => {
+            const k = e.key.toLowerCase();
+            keys[k] = true;
+            if (e.key === 'Escape' && isPlaying) returnToMainMenu();
+            if (!isPlaying) return;
+
+            if (k === 'f') player.flashlight = !player.flashlight;
+            if (k === 'r') {
+                player.battery = Math.min(100, player.battery + 10);
+                noise = Math.min(100, noise + 24);
+                playCrankSound();
+            }
+            if (k === 'e') handleInteract();
+        });
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+        window.addEventListener('mousedown', e => {
+            if (!isPlaying || e.button !== 0) return;
+            if (player.hasGun && player.shootCooldown <= 0) {
+                const angle = Math.atan2(mouse.y - canvas.height / 2, mouse.x - canvas.width / 2);
+                bullets.push({
+                    x: player.x, y: player.y,
+                    vx: Math.cos(angle) * 11,
+                    vy: Math.sin(angle) * 11,
+                    life: 50
+                });
+                player.shootCooldown = 25;
+                noise = Math.min(100, noise + 18);
+                playStunShootSound();
+            }
+        });
+
+        function handleInteract() {
+            const c = Math.floor(player.x / TILE);
+            const r = Math.floor(player.y / TILE);
+            for (let rr = r - 1; rr <= r + 1; rr++) {
+                for (let cc = c - 1; cc <= c + 1; cc++) {
+                    if (!map[rr]) continue;
+                    if (map[rr][cc] === 2) {
+                        map[rr][cc] = 0;
+                        player.hasKey = true;
+                        updateHUD();
+                    } else if (map[rr][cc] === 4) {
+                        map[rr][cc] = 0;
+                        player.hasGun = true;
+                        updateHUD();
+                    } else if (map[rr][cc] === 3 && player.hasKey) {
+                        isPlaying = false;
+                        document.getElementById('game-hud').classList.add('hidden');
+                        const winScreen = document.getElementById('win-screen');
+                        const btnNext = document.getElementById('btn-next-stage');
+                        winScreen.classList.remove('hidden');
+
+                        if (currentStage < 3) {
+                            document.getElementById('win-title').innerText = `VƯỢT QUA TẦNG ${currentStage}!`;
+                            document.getElementById('win-desc').innerText = currentStage === 1
+                                ? 'Cánh cổng dẫn xuống Cấp Độ Địa Ngục đã mở!'
+                                : 'Bạn đã tiến tới chiều không gian cuối cùng: THE END!';
+                            btnNext.classList.remove('hidden');
+                        } else {
+                            document.getElementById('win-title').innerText = 'CHINH PHỤC THE END - CHIẾN THẮNG!';
+                            document.getElementById('win-desc').innerText = 'Steve đã thoát khỏi chiều không gian Hư Không và phá đảo toàn bộ 3 tầng hầm K-09!';
+                            btnNext.classList.add('hidden');
+                        }
+                    }
+                }
+            }
+        }
+
+        function findPath(startC, startR, endC, endR) {
+            if (startC === endC && startR === endR) return [];
+            const queue = [[startC, startR, []]];
+            const visited = new Set([`${startC},${startR}`]);
+            while (queue.length > 0) {
+                const [c, r, path] = queue.shift();
+                if (c === endC && r === endR) return path;
+                for (const [dc, dr] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+                    const nc = c + dc, nr = r + dr;
+                    const key = `${nc},${nr}`;
+                    if (map[nr] && map[nr][nc] !== 1 && !visited.has(key)) {
+                        visited.add(key);
+                        queue.push([nc, nr, [...path, { c: nc, r: nr }]]);
+                    }
+                }
+            }
+            return [];
+        }
+
+        function update() {
+            const sneak = keys['control'];
+            const spd = sneak ? 1.7 : 3.3;
+            let dx = 0, dy = 0;
+
+            if (keys['w']) dy -= spd;
+            if (keys['s']) dy += spd;
+            if (keys['a']) { dx -= spd; player.facingLeft = true; }
+            if (keys['d']) { dx += spd; player.facingLeft = false; }
+
+            if (dx !== 0 || dy !== 0) {
+                const nextC = Math.floor((player.x + dx) / TILE);
+                const nextR = Math.floor((player.y + dy) / TILE);
+                if (map[Math.floor(player.y / TILE)][nextC] !== 1) player.x += dx;
+                if (map[nextR][Math.floor(player.x / TILE)] !== 1) player.y += dy;
+
+                const animSpd = sneak ? 0.14 : 0.26;
+                player.walkPhase += animSpd;
+                player.stepTimer += animSpd;
+                if (player.stepTimer >= Math.PI) {
+                    player.stepTimer = 0;
+                    playFootstepSound(sneak);
+                    noise = Math.min(100, noise + (sneak ? 2 : 11));
+                    for (let i = 0; i < (sneak ? 2 : 4); i++) {
+                        footParticles.push({
+                            x: player.x + (Math.random() - 0.5) * 10,
+                            y: player.y + 14,
+                            vx: (Math.random() - 0.5) * 1.2,
+                            vy: -Math.random() * 1.1,
+                            life: 1
+                        });
+                    }
+                }
+            } else {
+                player.walkPhase *= 0.8;
+            }
+
+            const pc = Math.floor(player.x / TILE), pr = Math.floor(player.y / TILE);
+            if (map[pr][pc] === 5) {
+                map[pr][pc] = 0;
+                player.battery = Math.min(100, player.battery + 60);
+            }
+
+            let hint = '';
+            for (let rr = pr - 1; rr <= pr + 1; rr++) {
+                for (let cc = pc - 1; cc <= pc + 1; cc++) {
+                    if (!map[rr]) continue;
+                    if (map[rr][cc] === 2) hint = 'Nhấn [E] để mở Rương lấy Thẻ Từ';
+                    if (map[rr][cc] === 4) hint = 'Nhấn [E] để nhặt Súng Tê Liệt (Vô hạn đạn)';
+                    if (map[rr][cc] === 3) hint = player.hasKey ? 'Nhấn [E] để vào Cổng Thoát Hiểm!' : 'Cổng bị khóa (Cần Thẻ Từ)';
+                }
+            }
+            document.getElementById('interact-hint').innerText = hint;
+
+            if (player.shootCooldown > 0) player.shootCooldown--;
+            if (player.flashlight && player.battery > 0) player.battery = Math.max(0, player.battery - 0.025);
+            noise = Math.max(30, noise - 0.35);
+
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.life--;
+                const bc = Math.floor(b.x / TILE), br = Math.floor(b.y / TILE);
+                if (!map[br] || map[br][bc] === 1 || b.life <= 0) {
+                    bullets.splice(i, 1);
+                    continue;
+                }
+                if (Math.hypot(b.x - monster.x, b.y - monster.y) < 28) {
+                    monster.stunTimer = 120;
+                    bullets.splice(i, 1);
+                }
+            }
+
+            const aiLabel = document.getElementById('ai-state');
+            if (monster.stunTimer > 0) {
+                monster.stunTimer--;
+                aiLabel.innerText = `BỊ CHOÁNG (${(monster.stunTimer / 60).toFixed(1)}s)`;
+                aiLabel.style.color = '#00ffff';
+            } else {
+                const distToPlayer = Math.hypot(player.x - monster.x, player.y - monster.y);
+                const hearingRange = (noise / 100) * 520 + (currentStage * 60);
+                const chasing = distToPlayer < hearingRange || distToPlayer < 160;
+
+                aiLabel.innerText = chasing ? 'ĐANG TRUY ĐUỔI!' : 'TUẦN TRA';
+                aiLabel.style.color = chasing ? '#e74c3c' : '#2ecc71';
+
+                monster.pathTimer--;
+                if (monster.pathTimer <= 0) {
+                    monster.pathTimer = chasing ? 18 : 45;
+                    const mc = Math.floor(monster.x / TILE), mr = Math.floor(monster.y / TILE);
+                    if (chasing) {
+                        monster.path = findPath(mc, mr, pc, pr);
+                    } else if (monster.path.length === 0) {
+                        const rc = 1 + Math.floor(Math.random() * (cols - 2));
+                        const rr = 1 + Math.floor(Math.random() * (rows - 2));
+                        if (map[rr][rc] !== 1) monster.path = findPath(mc, mr, rc, rr);
+                    }
+                }
+
+                if (monster.path.length > 0) {
+                    const target = monster.path[0];
+                    const tx = (target.c + 0.5) * TILE;
+                    const ty = (target.r + 0.5) * TILE;
+                    const ang = Math.atan2(ty - monster.y, tx - monster.x);
+                    const curSpd = chasing ? monster.speed * 1.25 : monster.speed * 0.8;
+                    monster.x += Math.cos(ang) * curSpd;
+                    monster.y += Math.sin(ang) * curSpd;
+                    monster.walkPhase += 0.22;
+                    if (Math.hypot(tx - monster.x, ty - monster.y) < 8) monster.path.shift();
+                }
+
+                if (distToPlayer < 24) {
+                    triggerJumpscare();
+                }
+            }
+
+            for (let i = footParticles.length - 1; i >= 0; i--) {
+                footParticles[i].x += footParticles[i].vx;
+                footParticles[i].y += footParticles[i].vy;
+                footParticles[i].life -= 0.04;
+                if (footParticles[i].life <= 0) footParticles.splice(i, 1);
+            }
+            ambientParticles.forEach(pt => {
+                pt.x = (pt.x + pt.vx + cols * TILE) % (cols * TILE);
+                pt.y = (pt.y + pt.vy + rows * TILE) % (rows * TILE);
+            });
+
+            document.getElementById('db-txt').innerText = Math.round(noise);
+            const nf = document.getElementById('noise-fill');
+            nf.style.width = noise + '%';
+            nf.style.backgroundColor = noise > 75 ? '#e74c3c' : (noise > 50 ? '#f39c12' : '#2ecc71');
+            document.getElementById('battery-fill').style.width = player.battery + '%';
+        }
+
+        function triggerJumpscare() {
+            isPlaying = false;
+            playJumpscareSound();
+            const overlay = document.getElementById('jumpscare-overlay');
+            const jCanvas = document.getElementById('jumpscareCanvas');
+            const jCtx = jCanvas.getContext('2d');
+            overlay.classList.remove('hidden');
+
+            let ticks = 0;
+            const scareInterval = setInterval(() => {
+                ticks++;
+                jCtx.fillStyle = ticks % 2 === 0 ? '#1a0005' : '#000';
+                jCtx.fillRect(0, 0, 400, 400);
+                jCtx.save();
+                const scale = 1 + ticks * 0.14;
+                const shakeX = (Math.random() - 0.5) * 35;
+                const shakeY = (Math.random() - 0.5) * 35;
+                jCtx.translate(200 + shakeX, 220 + shakeY);
+                jCtx.scale(scale, scale);
+                drawMonster(jCtx, 0, 0, currentStage, false, 0);
+                jCtx.restore();
+
+                if (ticks > 14) {
+                    clearInterval(scareInterval);
+                    overlay.classList.add('hidden');
+                    document.getElementById('game-hud').classList.add('hidden');
+                    document.getElementById('lose-screen').classList.remove('hidden');
+                }
+            }, 55);
+        }
+
+        function draw() {
+            ctx.imageSmoothingEnabled = false;
+            ctx.fillStyle = currentStage === 3 ? '#07030f' : '#050507';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const camX = canvas.width / 2 - player.x;
+            const camY = canvas.height / 2 - player.y;
+
+            ctx.save();
+            ctx.translate(camX, camY);
+
+            const curWall = currentStage === 1 ? wallT1 : (currentStage === 2 ? wallT2 : wallT3);
+            const curFloor = currentStage === 1 ? floorT1 : (currentStage === 2 ? floorT2 : floorT3);
+
+            const startC = Math.max(0, Math.floor((player.x - canvas.width / 2) / TILE) - 1);
+            const endC = Math.min(cols, Math.ceil((player.x + canvas.width / 2) / TILE) + 1);
+            const startR = Math.max(0, Math.floor((player.y - canvas.height / 2) / TILE) - 1);
+            const endR = Math.min(rows, Math.ceil((player.y + canvas.height / 2) / TILE) + 1);
+
+            for (let r = startR; r < endR; r++) {
+                for (let c = startC; c < endC; c++) {
+                    const x = c * TILE, y = r * TILE;
+                    if (map[r][c] === 1) {
+                        ctx.drawImage(curWall, x, y, TILE, TILE);
+                    } else {
+                        ctx.drawImage(curFloor, x, y, TILE, TILE);
+                        if (r > 0 && map[r - 1][c] === 1) {
+                            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                            ctx.fillRect(x, y, TILE, 10);
+                        }
+                    }
+                    if (map[r][c] === 2) ctx.drawImage(chestSprite, x, y, TILE, TILE);
+                    if (map[r][c] === 3) ctx.drawImage(portalSprite, x, y, TILE, TILE);
+                    if (map[r][c] === 4) ctx.drawImage(gunSprite, x, y, TILE, TILE);
+                    if (map[r][c] === 5) ctx.drawImage(batSprite, x, y, TILE, TILE);
+                }
+            }
+
+            bullets.forEach(b => {
+                ctx.fillStyle = '#00ffff';
+                ctx.fillRect(b.x - 4, b.y - 4, 8, 8);
+            });
+
+            footParticles.forEach(pt => {
+                ctx.fillStyle = `rgba(200,200,200,${pt.life})`;
+                ctx.fillRect(pt.x, pt.y, 3, 3);
+            });
+
+            drawSteve(ctx, player.x, player.y, player.walkPhase, player.facingLeft, player.hasGun);
+            drawMonster(ctx, monster.x, monster.y, currentStage, monster.stunTimer > 0, monster.walkPhase);
+
+            ambientParticles.forEach(pt => {
+                ctx.fillStyle = currentStage === 1 ? 'rgba(200,210,220,0.25)'
+                    : (currentStage === 2 ? 'rgba(255,110,40,0.45)' : 'rgba(190,90,255,0.55)');
+                ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+            });
+
+            ctx.restore();
+
+            const angle = Math.atan2(mouse.y - canvas.height / 2, mouse.x - canvas.width / 2);
+            const lCanvas = document.createElement('canvas');
+            lCanvas.width = canvas.width; lCanvas.height = canvas.height;
+            const lCtx = lCanvas.getContext('2d');
+
+            lCtx.fillStyle = currentStage === 3 ? 'rgba(8, 2, 16, 0.85)' : 'rgba(0, 0, 0, 0.83)';
+            lCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            lCtx.globalCompositeOperation = 'destination-out';
+            const amb = lCtx.createRadialGradient(canvas.width/2, canvas.height/2, 15, canvas.width/2, canvas.height/2, 110);
+            amb.addColorStop(0, 'rgba(0,0,0,1)');
+            amb.addColorStop(1, 'rgba(0,0,0,0)');
+            lCtx.fillStyle = amb;
+            lCtx.beginPath(); lCtx.arc(canvas.width/2, canvas.height/2, 110, 0, Math.PI * 2); lCtx.fill();
+
+            if (player.flashlight && player.battery > 0) {
+                const len = player.battery < 20 ? 190 : 330;
+                const beam = lCtx.createRadialGradient(canvas.width/2, canvas.height/2, 20, canvas.width/2, canvas.height/2, len);
+                beam.addColorStop(0, 'rgba(0,0,0,1)');
+                beam.addColorStop(1, 'rgba(0,0,0,0)');
+                lCtx.fillStyle = beam;
+                lCtx.beginPath();
+                lCtx.moveTo(canvas.width/2, canvas.height/2);
+                lCtx.arc(canvas.width/2, canvas.height/2, len, angle - 0.45, angle + 0.45);
+                lCtx.closePath(); lCtx.fill();
+            }
+            ctx.drawImage(lCanvas, 0, 0);
+
+            drawMinimap();
+        }
+
+        function drawMinimap() {
+            const mScale = 5;
+            const mw = cols * mScale;
+            const mh = rows * mScale;
+            const mx = canvas.width - mw - 18;
+            const my = canvas.height - mh - 18;
+
+            ctx.fillStyle = 'rgba(10, 12, 18, 0.85)';
+            ctx.fillRect(mx - 4, my - 4, mw + 8, mh + 8);
+            ctx.strokeStyle = currentStage === 3 ? '#a55eea' : (currentStage === 2 ? '#e74c3c' : '#555');
+            ctx.strokeRect(mx - 4, my - 4, mw + 8, mh + 8);
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (map[r][c] === 1) {
+                        ctx.fillStyle = currentStage === 3 ? '#6c5ce7' : (currentStage === 2 ? '#7f1d1d' : '#3d4554');
+                        ctx.fillRect(mx + c * mScale, my + r * mScale, mScale, mScale);
+                    } else if (map[r][c] === 2) {
+                        ctx.fillStyle = '#f1c40f';
+                        ctx.fillRect(mx + c * mScale, my + r * mScale, mScale, mScale);
+                    } else if (map[r][c] === 3) {
+                        ctx.fillStyle = '#2ecc71';
+                        ctx.fillRect(mx + c * mScale, my + r * mScale, mScale, mScale);
+                    } else if (map[r][c] === 4) {
+                        ctx.fillStyle = '#00cec9';
+                        ctx.fillRect(mx + c * mScale, my + r * mScale, mScale, mScale);
+                    }
+                }
+            }
+
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(mx + (player.x / TILE) * mScale - 2, my + (player.y / TILE) * mScale - 2, 4, 4);
+        }
+
+        function gameLoop() {
+            if (isPlaying) {
+                update();
+                draw();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
